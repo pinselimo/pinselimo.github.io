@@ -31,7 +31,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
-            >>= loadAndApplyTemplate "templates/default.html" (constField "title" "Blog" `mappend` postCtx)
+            >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" `mappend` postCtx)
             >>= relativizeUrls
 
     match (fromList ["about.md","teaching.md","research.md","development.md"]) $ do
