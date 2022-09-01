@@ -17,9 +17,13 @@
           license = "unknown";
           mainProgram = "site";
         };
-      drv = pkgs.lib.id (pkgs.haskellPackages.callPackage f {});
+      drv = pkgs.haskellPackages.callPackage f {};
     in {
-    checks.benchmark = pkgs.haskell.lib.doBenchmark(pkgs.haskellPackages.callPackage f {});
-    packages.default = pkgs.haskellPackages.callPackage f {};
+    checks.benchmark = pkgs.haskell.lib.doBenchmark(drv);
+    packages.default = drv;
+    apps.default = {
+      type = "app";
+      program = "${drv}/bin/site"; 
+    };
   });
 }
