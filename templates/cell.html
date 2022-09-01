@@ -1,0 +1,19 @@
+$if(image)$
+<article id="$title$" class="post style1">
+    <div class="content">
+        <div class="inner">
+            $body$
+        </div>
+    </div>
+    <div class="image">
+        <img src="$image$">
+    </div>
+</article>
+$else$
+<!-- Main -->
+<section id="main">
+    <div class="inner">
+        $body$
+    </div>
+</section>
+$endif$
