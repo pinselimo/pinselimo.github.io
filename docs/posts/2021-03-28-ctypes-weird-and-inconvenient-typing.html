@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                The weird and inconvenient typing of Python's ctypes library
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>The weird and inconvenient typing of Python's ctypes library</h2>
+        <p class="info">
+            Posted on March 28, 2021
+            
+                by Simon Plakolb
+            
+            
+                <br>Schroedingers strict typing explained.
+            
+        </p>
+    </header>
+    <section>
+        <p>This post is the result of two initially separate drafts. As they both circled the typing of Python’s <em>ctypes</em> library, I chose to merge them.</p>
+<p>Many programming languages ship with one or another form of support for interfacing with <em>C</em>. In Python you can actually write whole libraries entirely in the <em>C</em> programming language. If on the other hand you just want to interface with a <em>C</em> library you might want to: <code>import ctypes</code>. It provides you with the ability to import dynamically linked libraries (DLLs) and with implementations of the types you might encounter coming from <em>C</em>. You can then access the functions in these libraries and type conversions will be done for you by <em>ctypes</em>.</p>
+<p>While developing my Haskell - Python interfacing library <a href="htts://github.com/pinselimo/Pythas">Pythas</a> I used <em>ctypes</em> to load compiled Haskell into Python. Naturally, there were some weird things I encountered doing so. Let’s start with:</p>
+<h2 id="ctypes-weirdly-strict-typing">ctypes weirdly strict typing</h2>
+<p>When developing in both Python and Haskell you quickly realize just how strict the latter’s type checker is. If the type of any function in Haskell doesn’t check out it will complain right away.</p>
+<p>Python’s usually different. You might have had a function call multiplying two strings all along, yet it won’t complain unless it touches this very call. Naturally, I expected Haskell to cause the vast majority of type related problems in my endeavour.
+Until I faced this weird situation with <em>ctypes</em>:</p>
+<pre><code>ctypes.ArgumentError: argument 1: &lt;class 'TypeError'&gt;: expected LP_c_array instance instead of LP_c_array</code></pre>
+<p>Usually Python doesn’t support static typing i.e. telling the language which type an expression has. In order to interface with other languages it needs to know these specifics about memory though. So obviously you have to tell <em>ctypes</em> what the data it’s seeing means. Otherwise, it will always default to 32 bit integers (AFAIK).</p>
+<p>But why would it confuse an <code>LP_c_array</code> with an <code>LP_c_array</code> ?</p>
+<p>Turn’s out if you construct a <code>ctypes.Structure</code> subclass twice, even with the same name and memory layout - these are distinct types to ctypes. And it checks for them!</p>
+<p>You can try it out with this snippet:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> ctypes</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> new_struct(type_a, type_b):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>...     <span class="kw">class</span> Struct(ctypes.Structure):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>...         _fields_ <span class="op">=</span> [(<span class="st">&quot;a&quot;</span>, type_a), (<span class="st">&quot;b&quot;</span>, type_b)]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> Struct</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> StructA, StructB <span class="op">=</span> new_struct(ctypes.c_int, ctypes.c_int), new_struct(ctypes.c_int, ctypes.c_int)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> StructA <span class="kw">is</span> StructB <span class="kw">or</span> StructA <span class="op">==</span> StructB</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="va">False</span></span></code></pre></div>
+<p>This is weird behavior especially since it would happily default to just treating the data like an integer. Neither does it hesitate to try and access any memory you point it to nor to interpret it in faulty ways. In pretty much any use case <em>ctypes</em> follows <em>C</em>’s philosophy of trusting the developer. Then once you try to construct the same memory layout twice it will fail on you.</p>
+<p>If you want to reconstruct the error message from above continue the code example with:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> libc <span class="op">=</span> ctypes.CDLL(<span class="st">&quot;libc.so.6&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> libc.printf.argtypes <span class="op">=</span> [ctypes.POINTER(StructA)] <span class="co"># For demonstration purposes only</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> pb <span class="op">=</span> ctypes.pointer(StructB(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> libc.printf(pb) <span class="co"># Call with the wrongly typed instance</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ctypes.ArgumentError: argument <span class="dv">1</span>: <span class="op">&lt;</span><span class="kw">class</span> <span class="st">'TypeError'</span><span class="op">&gt;</span>: expected LP_Struct instance instead of LP_Struct</span></code></pre></div>
+<p>What’s even weirder is, you are allowed subclass pointers without facing this issue:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> PointerA <span class="op">=</span> ctypes.POINTER(ctypes.c_char)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> PointerB <span class="op">=</span> ctypes.POINTER(ctypes.c_char)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> libc.printf.argtypes <span class="op">=</span> [PointerA] <span class="co"># For demonstration purposes only</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> a <span class="op">=</span> PointerB(ctypes.c_char(<span class="st">b&quot;a&quot;</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> libc.printf(a)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>a⏎</span></code></pre></div>
+<p>The end of the first story. Next up we have:</p>
+<h2 id="ctypes-weirdly-inconvenient-type-conversions">ctypes weirdly inconvenient type conversions</h2>
+<p>So now that we know we need to tell <em>ctypes</em> <strong>exactly</strong> which type it is looking at we should be fine, right? Wrong!</p>
+<p>The library is so eager to support us, it starts doing type conversions without being asked. If a C-function has return type <code>ctypes.c_wchar_p</code> (and probably also <code>ctypes.c_char_p</code> but Python uses 16bit characters for strings) ctypes will handle the conversion to a Python <code>str</code> string automatically. Unfortunately it doesn’t keep track of the pointer, nor marshal it in any way. So we’re</p>
+<p>So we end up with leaking memory unless we go to the lengths of wrapping said string. One of the most important features of data processing are strings however. So they were a must have in the Pythas package.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> pythas<span class="op">;</span> <span class="im">import</span> example.example <span class="im">as</span> e</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> e.strings(<span class="st">&quot;abba abba nunada banana&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">'bb bb nund bnn'</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> time <span class="im">import</span> sleep</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sleep(<span class="dv">1</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">999999</span>):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>...     e.strings(<span class="st">&quot;abba abba nunada banana&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>...</span></code></pre></div>
+<p>This example works at the root directory of the <a href="https://github.com/pinselimo/Pythas">Pythas repository</a>. Alternatively create a directory called <code>example</code> and place an <code>Example.hs</code> file in it filled with these <a href="https://github.com/pinselimo/Pythas/blob/master/example/Example.hs">file contents</a>. Then install <strong>Pythas</strong> using <em>pip</em> and run <em>python</em>.</p>
+<h3 id="memory-profiling">Memory profiling</h3>
+<p>Using <em>Valgrind</em>’s own <em>massif</em> memory profiler I created two graphs showing the issue. In the first graph we’ll use the code from above. <em>Pythas</em> is designed with this issue in mind. It doesn’t actually hand over <code>char</code>-pointers but <code>char</code>-pointer-pointers! Hence, <em>ctypes</em> doesn’t automatically convert the string and we can dereference the pointer after conversion.</p>
+<pre><code>    MB
+3.141^                                                                       #
+     |@                                                                      #
+     |@::@::::::::@::::::::::::@@:@::@:::::::::::::::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+     |@ :@:: :::::@: : :: ::: :@ :@: @:::: :: ::: :::::::::::::::@::::::@::::#
+   0 +-----------------------------------------------------------------------&gt;Gi
+     0                                                                   123.1</code></pre>
+<p>The second graph relies on <em>ctypes</em>. It’s the same example but using the <strong>testing only</strong> commit <a href="https://github.com/pinselimo/Pythas/commit/66527b2470e73df33783bcd5ccaed00db1886241">66527b2</a> of <em>Pythas</em>.
+This version will hand over plain <code>char</code>-pointers making it impossible to get the pointer address after <em>ctypes</em>’ automatic conversion. You can see the result here:</p>
+<pre><code>    MB
+72.41^                                                                       #
+     |                                                                    ::@#
+     |                                                                 :::::@#
+     |                                                            :@::::::::@#
+     |                                                         ::::@::::::::@#
+     |                                                     ::@:: ::@::::::::@#
+     |                                                 ::::::@:: ::@::::::::@#
+     |                                              :::: ::::@:: ::@::::::::@#
+     |                                           ::::::: ::::@:: ::@::::::::@#
+     |                                      :::::::::::: ::::@:: ::@::::::::@#
+     |                                   ::::::: ::::::: ::::@:: ::@::::::::@#
+     |                                :::::::::: ::::::: ::::@:: ::@::::::::@#
+     |                           ::::::: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |                       :::::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |                    :::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |                @::::::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |             :::@: ::::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |        ::::::::@: ::::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |    ::::: :: :::@: ::::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+     |@@::::: : :: :::@: ::::: :::: : :: ::::::: ::::::: ::::@:: ::@::::::::@#
+   0 +-----------------------------------------------------------------------&gt;Gi
+     0                                                                   106.2</code></pre>
+<p>As with any graph in the depths of the internet, take a close look at the y-axis. You can easily sport the memory leakage appearing when directly handing strings from Python via <em>ctypes</em> to Haskell and vice versa. The result is a roughly 23 fold increase in memory usage in that very simple test case.</p>
+<p>I guess it’s safe to say <em>ctypes</em> doesn’t properly support allocated strings.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Of course these things are more related to UX, error message philosophy and consistency. Nothing major. Hence, I could provide workarounds for both. I also had to for my <em>Pythas</em> package.</p>
+<ul>
+<li>To prevent type matching errors consider pairing the <code>struct</code> subclass with it’s constructor (if these two aren’t one and the same). Do not rely on the function to provide you with the correct type dynamically.</li>
+<li>To circumvent <em>ctypes</em> swallowing your pointer reference wrap <code>ctypes.c_wchar_p</code> instances in another <code>ctypes.POINTER</code>. This way you can then free both of them from wherever you allocated the space in the first place.</li>
+</ul>
+<p>For more fun with <em>ctypes</em> refer to the aptly named <a href="https://docs.python.org/3/library/ctypes.html#surprises">“surprises”</a> paragraph of its very own documentation.</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                Pythas Beta released
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>Pythas Beta released</h2>
+        <p class="info">
+            Posted on March 30, 2021
+            
+                by Simon Plakolb
+            
+            
+                <br>They asked me why and not even I would know
+            
+        </p>
+    </header>
+    <section>
+        <p>The <a href="https://github.com/pinselimo/Pythas">Pythas</a> package provides an easy to use interface between Python and Haskell. Thus the mame Pyt(-hon) + Has(-kell). Or, to put it into a formal context:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>λ<span class="op">&gt;</span> (\a b <span class="ot">-&gt;</span> (<span class="op">++</span>) (<span class="fu">take</span> <span class="dv">3</span> a) (<span class="fu">take</span> <span class="dv">3</span> b)) <span class="st">&quot;Python&quot;</span> <span class="st">&quot;Haskell&quot;</span></span></code></pre></div>
+<p>Let’s call this function <code>name</code>. Using Pythas you can now import it into Python:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> python <span class="im">import</span> SourceModule</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> name <span class="op">=</span> SourceModule(<span class="st">'''</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">...     name :: String -&gt; String -&gt; String</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">...     name a b = (++) (take 3 a) (take 3 b)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">...     '''</span>).name</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> name(<span class="st">&quot;Python&quot;</span>, <span class="st">&quot;Haskell&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>PytHas</span></code></pre></div>
+<p>This article covers only the beta release. Read <a href="../posts/2021-03-29-pythas-history.html">this blog post</a> for a little story about how it came to be.</p>
+<h2 id="whats-in-pythas-as-of-now">What’s in Pythas as of now</h2>
+<p>Pythas now allows functions (and constants) sporting:</p>
+<ul>
+<li>Basic types such as integers, characters or floating point values.</li>
+<li>Strings</li>
+<li>Lists</li>
+<li>Tuples</li>
+<li>Nested lists and tuples</li>
+<li>Nested combinations of lists, tuples, strings and basic types</li>
+</ul>
+<p>Additionally it also has experimental support for custom types which can be handed as pointers so you can use Python as glue language.
+That’s the first distinction from <a href="https://github.com/ddfisher/HaPy">HaPy</a> which doesn’t support the more complex data structures.</p>
+<p>The second distinction is, that Pythas refrains from using Template Haskell in “mission critical” logic. It thus requires no user intervention at any point of usage. Moreover, its exports are fully type checked by GHC!</p>
+<p>Things it does not support as of now are:</p>
+<ul>
+<li>Function pointers</li>
+<li>Operations or conversions of custom types</li>
+<li>Most language extensions</li>
+<li>Anything I didn’t remember ;)</li>
+</ul>
+<h2 id="the-discussion-on-use-cases">The discussion on use cases</h2>
+<p>I have been asked what Pythas is actually for. I mostly have educational as well as scientific use in mind.</p>
+<p>Python is often used by beginner programmers for its ease of use. Haskell on the other hand has a lot to teach too. However, its learning curve is steep. Using Pythas you can now use <em>some</em> Haskell in your Python code and arrive at fruitful use of Haskell quicker.</p>
+<p>As a systems scientist I like to use Haskell for writing correct models. However, for their analysis I really prefer Python. Not to mention my colleagues who would like me to spare them the Haskell hassle. Pythas may allow me in the future to have the best of both worlds.
+In that scenario it serves a purpose reminiscent of <a href="https://github.com/quaquel/pyNetLogo">pyNetlogo</a> or <a href="https://github.com/chathika/NL4Py">NL4Py</a>.</p>
+<p>As to <strong>why</strong> I wrote this package, please refer to its <a href="../posts/2021-03-29-pythas-history.html">history</a>.
+If you won’t take this for an answer, let me ask you:</p>
+<ul>
+<li>Have you ever had some Haskell code and wanted to use it in Python? No?</li>
+<li>Did you ever encounter a Python programmer who really needed something only available in Haskell? Neither?</li>
+<li>Would you ever lay awake at night wondering how great it would be to use both Haskell and Python at once?</li>
+</ul>
+<p>Well in case you’re still curious, Pythas is available through <a href="https://pypi.org/project/pythas/0.1b1/"><em>pypi</em></a> now!
+So don’t hesitate, just:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> pip install pythas<span class="kw">;</span> <span class="ex">python</span> <span class="at">-c</span> <span class="st">&quot;import pythas&quot;</span></span></code></pre></div>
+<p>Full documentation can be found on <a href="https://pythas.readthedocs.io">readthedocs.io</a>.</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

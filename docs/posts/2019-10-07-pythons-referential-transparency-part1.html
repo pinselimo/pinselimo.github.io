@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                Python's referential transparency
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>Python's referential transparency</h2>
+        <p class="info">
+            Posted on October  7, 2019
+            
+                by Simon Plakolb
+            
+            
+                <br>Part 1 - A rant
+            
+        </p>
+    </header>
+    <section>
+        <p>Python’s Generator functions and expressions introduced lazy evaluation syntax into a previously mostly eagerly evaluated ecosystem. Laziness was first introduced in functional programming languages and that’s for a reason: To assure a function can be evaluated at any time yet yield the same result requires referential transparency.</p>
+<p>This poses the question: Is there any thing close to referential transparency in Python?
+There’s not even constants, so an easy shot is to just answer: Nope.</p>
+<p>Let’s look at an example for that. We’ll define a pair of functions. One named <code>f</code> is a normal Python function; <code>g</code> however is a generator function, the lazy equivalent of a normal Python function:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> f(x):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> x<span class="op">*</span>x</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> g(xs):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">for</span> x <span class="kw">in</span> xs:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>...         <span class="cf">yield</span> f(x)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>...</span></code></pre></div>
+<p>Let’s call <code>g</code> and see what happens. Since it is lazy we can easily call it on an infinite structure. Calling it like that also proofs its laziness once and for all:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> itertools <span class="im">import</span> count</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> gen <span class="op">=</span> g(count())</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> [<span class="bu">next</span>(gen) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>, <span class="dv">16</span>, <span class="dv">25</span>, <span class="dv">36</span>, <span class="dv">49</span>, <span class="dv">64</span>, <span class="dv">81</span>]</span></code></pre></div>
+<p>Defining <code>gen</code> does not blow up our computer, so we are indeed not evaluating eagerly. But what happens once we change <code>f</code> to be the identity function?</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x: x</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">next</span>(gen)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span></code></pre></div>
+<h3 id="now-that-sucks">Now that sucks</h3>
+<p>There’s no referential transparency. Or is there?
+Well it comes down to conventionalism. That’s the charm of Python, I guess.
+Let’s change our interpretation of a generator function from being the lazy equivalent of a usual function to being the constructor of such an equivalent.</p>
+<p>As the Zen of Python teaches us:
+&gt; Namespaces are one honking great idea – let’s do more of those!</p>
+<p>Let’s redefine <code>g</code> to create a generator in an confined namespace:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> g(f,xs):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="cf">from</span> (f(x) <span class="cf">for</span> x <span class="kw">in</span> xs)</span></code></pre></div>
+<p>For convenience the for-loop expression was substituted with a generator expression. The important difference is the introduction of an inner scoped function <code>f</code>. Let’s see such a generator in action:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> gen <span class="op">=</span> g(f,count())</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> [<span class="bu">next</span>(gen) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">+</span>x</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">next</span>(gen)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span></code></pre></div>
+<p>Where has the function <code>f</code> gone to though? <em>Has it amazingly become the first constant ever to be seen in Python?</em></p>
+<h3 id="of-course-not">Of course not</h3>
+<p>The variable state is just localized (good) and harder to access (really not that good):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> gen.gi_frame.f_locals</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>{<span class="st">'xs'</span>: count(<span class="dv">10</span>), <span class="st">'f'</span>: <span class="op">&lt;</span>function <span class="op">&lt;</span><span class="kw">lambda</span><span class="op">&gt;</span> at <span class="bn">0x7f82bb3b7710</span><span class="op">&gt;</span>}</span></code></pre></div>
+<p>Here we can also explore a dirty trick Python plays on us to keep us believing in laziness within its realm. The for loop over count has somehow transcended into the count function.
+Still as long as we keep ourselves and our users from touching gen’s internal state, we can guarante referential transparency now.</p>
+<p><strong>Python is weird.</strong></p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

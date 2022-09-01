@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                TerraTec Connect N3 Hack Part 2
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>TerraTec Connect N3 Hack Part 2</h2>
+        <p class="info">
+            Posted on November  7, 2016
+            
+                by Simon Plakolb
+            
+            
+                <br>Opening doors, exploring the jungle
+            
+        </p>
+    </header>
+    <section>
+        <p>Having my UART stick connected to my computer I started screen to try out different bitrates, ending up at 115.200 bit/s which finally had me seeing meaningful ASCII on my screen and entering my home field: the software.</p>
+<figure>
+<img src="../images/conn_2.jpg" style="width:60.0%" alt="Boot screen" />
+<figcaption aria-hidden="true">Boot screen</figcaption>
+</figure>
+<h3 id="opening-doors-and-finding-keys-aka-the-interesting-part">Opening doors and finding keys aka the interesting part</h3>
+<p>The first output booting up we got was U-Boot booting up the linux based OS on, as i guessed, an Atheros chip. The exact model is strangely sometimes called a AR7241 (Virian) and sometimes its predecessor the AR7240 (Python).<br />
+Luckily a one second windows to interrupt the booting process is offered to us:</p>
+<pre class="uboot"><code>PB93 (ar7241 - Virian) U-boot
+DRAM:
+sri
+ar7240_ddr_initial_config(133): virian ddr1 init
+____________________________________________________
+
+Hit any key to stop autoboot:  1  0
+## Booting image at 9f300000 ...
+   Image Name:   Linux Kernel Image
+   Created:      2011-06-14  10:12:25 UTC
+   Image Type:   MIPS Linux Kernel Image (lzma compressed)
+   Data Size:    783960 Bytes = 765.6 kB
+   Load Address: 80002000
+   Entry Point:  80211000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+No initrd
+## Transferring control to Linux (at address 80211000) ...
+## Giving linux memsize in bytes, 16777216
+
+Starting kernel ...
+
+Booting AR7240(Python)…</code></pre>
+<p>So I did, and ended up in the U-Boot boot manager. I looked at the environment variables set at boot time and changed them.</p>
+<p>Boot variables:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arg</span> 4: init=/sbin/init</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arg</span> 6: virian <span class="co"># still strange thing going on with the processor generation</span></span></code></pre></div>
+<p>Changing the boot variables to: <code>arg 4: init=/sbin/sh</code><br />
+had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
+<p>Et voilá we boot into the shell as root user:</p>
+<figure>
+<img src="images/conn_4.jpg" alt="Root" />
+<figcaption aria-hidden="true">Root</figcaption>
+</figure>
+<p>Unfortunately we also end up having a read only file system, so no password change via passwd but we can inspect the /etc/passwd and <code>/etc/shadow</code> file:</p>
+<figure>
+<img src="images/conn_15.jpg" alt="Passwd" />
+<figcaption aria-hidden="true">Passwd</figcaption>
+</figure>
+<p>As we can see, there are some users w/o password and the root and Admin user share root privileges and the same hash. As with many of these devices, googling the hash reveals the password behind it way too easy. So now we can boot up the device normally, using the init process and login as root having a r/w file system.</p>
+<h3 id="exploring-the-jungle-looking-for-holes-and-bugs">Exploring the jungle, looking for holes and bugs</h3>
+<p>The first question i faced was, which gen’s processor this thing runs under the hood, hidden away under the shield:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">system</span> type             : Atheros AR7240 <span class="er">(</span><span class="ex">Python</span><span class="kw">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#looks as if we’re running the old version</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">processor</span>               : 0</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">cpu</span> model               : MIPS 24K V7.4</span></code></pre></div>
+<p>Let’s look at the processes running after startup, ps spits out:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">217</span> root        124 S   /usr/sbin/telnetd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">220</span> root         56 D   /bin/factoryreset /dev/freset</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">221</span> root        392 S   my_httpd</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">222</span> root        288 S   netusb_wd CONNECT N3</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">228</span> root        328 S   netusb br0 CONNECT</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">231</span> root        276 S   awdp br0 CONNECT</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">229</span> root            SW  [thread_func_ex]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">240</span> root        184 S   /sbin/getty ttyS0 115200</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">245</span> root        184 S   udhcpc <span class="at">-b</span> <span class="at">-i</span> br0 <span class="at">-s</span> /etc/udhcpc.script</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">285</span> root        372 S   <span class="at">-sh</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">314</span> root        188 R   ps</span></code></pre></div>
+<p>Interesting to us are netusb and awdp, the last one of which i still don’t know anything about, but netusb rings the alarm bells in every security enthusiast’s mind, as there was a hole discovered in the software mid 2015 caused by a buffer overflow.</p>
+<p>NetUSB is a service, nomen est omen, providing USB over the local network. So it seems likely that it mirrors the USB DVB-S stick coming from the Cypress controller in the LAN, the driver on the client’s Windows machine then acts as an interface between a virtual USB device and the netusb device in the network.</p>
+<p>In the next post we’ll look into what’s happening on the network!</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

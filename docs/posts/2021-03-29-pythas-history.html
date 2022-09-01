@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                The Pythas story
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>The Pythas story</h2>
+        <p class="info">
+            Posted on March 29, 2021
+            
+                by Simon Plakolb
+            
+            
+                <br>A pandemic turned my life upside down and you won't believe what happened next.
+            
+        </p>
+    </header>
+    <section>
+        <p>It’s been a year since Corona took over the news and ultimately my whole life. Like for most people, my bored mind went astray and soon I sat in a park trying to compile Haskell code into a shared library, importing it into Python. Things went on and at the end of the first lockdown I put three lines on my home office whiteboard - which should haunt me throughout the pandemic:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>])</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>]</span></code></pre></div>
+<p>No, it’s not about a novel or wrongful use case of <a href="https://hackage.haskell.org/package/base-4.14.1.0/docs/Control-Arrow.html#v:-62--62--62-">left to right composition in Control.Arrow</a>. It’s an unlawful mixture of Python and Haskell syntax. But it encoded my idea:</p>
+<blockquote>
+<p><em>A function strictly defined in Haskell dynamically used in Python.</em></p>
+</blockquote>
+<p>My - obiously too shallow - first research showed no such advances made. I had overlooked <a href="https://github.com/ddfisher/HaPy">HaPy</a> which I discovered well into the development of Pythas. So I went head first into developing an easy to use Haskell-Python interface and after all at least now you get to choose flavors ;)</p>
+<h2 id="the-first-steps">The first steps</h2>
+<p>I had already successfully imported shared libraries compiled by GHC. The only thing that really bothered me was, how unnecessary tedious it was. You’d have to add all the <code>foreign export ccall</code> statements in Haskell and then remember to properly define the <code>restype</code> and <code>argtypes</code> on Python’s <em>ctypes</em>. Nothing that couldn’t be automated!</p>
+<p>For a first prototype I chose to parse stuff and do the code creation from within Python. It’s a good prototyping language tbh - quick and dirty! Way too dirty in fact. So the next parser was implemented using Haskell’s <em>Parsec</em>. There was a clear reason why I didn’t go for <em>Attoparsec</em> or the like. I wanted <em>Pythas</em> to remain as approachable as possible. People tinker with Python because it’s easy. So I view the possibility to import Haskell into Python as a stepping stone for those unfamiliar with the deeper Haskell ecosystem. Similarly, dependencies on Python’s side are kept minimal.</p>
+<blockquote>
+<p>Installing GHC or Stack was, is and should remain the hardest thing in setting up <em>Pythas</em>.</p>
+</blockquote>
+<p>Getting the trivial types to import was no big obstacle, so quickly I could:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f(<span class="dv">1</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code></pre></div>
+<p>And in fact a lot more was possible. <code>Float</code>s, <code>Char</code>s and the like. Yet if we compare this to the introductory statement: We’re still missing the brackets big time!</p>
+<h2 id="as-complexity-grew">As complexity grew</h2>
+<p>It quickly occured to me, that handling of any more complex data structures would be somewhat tougher.
+Having to do some memory management we get to introduce side-effects. A function <code>f :: [Int] -&gt; [Int]</code> would be exported as <code>f :: CList Int -&gt; IO (CList Int)</code>. Pythas would not only need to write the <code>foreign export ccall</code> statements but whole mappings lifting the exported functions into IO and converting their types.</p>
+<p>Turns out strict typing isn’t a problem I’d only encounter on Haskell’s side. Python’s ctypes library has weirdly strict typing too - you can read more about it in <a href="../posts/2021-03-28-ctypes-weird-and-inconvenient-typing.html">another blog post</a>.</p>
+<p>I ended up rewriting the parser twice, and it still lacks better type checking using ghost types. Pythas grew and grew and soon I branched out several sub-projects:</p>
+<ul>
+<li>C-Structs: C style structs for Haskell! These were necessary to accommodate complex data structures and hand them over. Surprisingly, no proper support had been added to either GHC or via third party packages. So this is available <a href="https://hackage.haskell.org/package/C-structs">on Hackage</a>.</li>
+<li>Pythas-Types: The type definitions for all complex data types Pythas uses to interface. The idea would be that interfaces to other languages could build on the same memory representations.</li>
+<li>Pythas-FFI: The parser and FFI code generator. Supported as shared library and executable alike!</li>
+</ul>
+<p>Finally, obviously the Pythas package itself ships and compiles all of the above, such that installation remains easy.</p>
+<h2 id="the-question-of-purity-inbetween">The question of purity inbetween</h2>
+<p>Both Python and especially Haskell promote lists as their goto types for collections. However, much like the languages themselves these lists are vastly distinct. Haskell’s lists are implemented as proper linked lists. They support a single contained type. In contrast, Python lists are really <a href="https://stackoverflow.com/a/3917632">dynamic arrays</a>. They can contain data of various types at a time.
+Like anything in Haskell, its lists are constant while Python’s are mutable. But even the constant counterpart of lists in Python - tuples - feature multiple types at a time. Which in fact aligns them with the concept of tuples in Haskell.</p>
+<p>I am an avid functional programmer; Why else would I bestow upon myself this task otherwise? So my first instinct for passing lists was to actually construct linked lists on memory and hand over the pointer to their <code>head</code>. However, once you bridge the boundaries of languages, data structures arrive at a new level of temporarity. They are only created to be destroyed right after being passed to the other runtime. Linked lists just yield no benefit in this scenario.</p>
+<p>Consequently, I introduced old school vectors as <code>data CArray a = Struct2 Int (Ptr a)</code>. Currently the allocated space in these arrays is not reused, but it could.
+Similarly, strings are just NULL-pointer marked wide char arrays. They are immutable in the interface as of now - but we’ll see how much speed optimization is needed if anybody ever decides to actually use Pythas for anything productive.</p>
+<p>A far less controversial choice is using structures for the interfacing of tuples. They’re immutable in both languages and such are their counterparts in the interface. Not that there would be any alternative.</p>
+<p>Ultimately, the current implementation favors immutable over mutable state as it is easier to manage. In case enough people actually find Pythas useful, I may consider optimizing on this part.</p>
+<h2 id="releasing-the-beast-into-the-wild">Releasing the beast into the wild</h2>
+<p>It’s hard to mark a single state in a year long’s development as a release. Every fix, every new solution spawns a plethora of new ideas. I cannot consider Pythas finished. However, I am too curious if anybody finds use in it. I want this package to be out there at some point - might as well be now, after a year of pandemic. At least now I can do:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">f ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>]</span></code></pre></div>
+<p>With the upcoming release I realised it takes a little more than just good code. I stepped into the world of proper continuous integration with Travis-CI. Only for it to sell out right before my planned release. So another venture into GitHub-Actions succeeded. Turns out the lower memory on their machines causes some problems for Pythas’ tests. It runs fine on my systems (sporting Linux, Windows and macOS).</p>
+<p>Finally, I mention it all over the repos - but please: If you have a use case, feel free to contact me (see below) and show it off :)</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

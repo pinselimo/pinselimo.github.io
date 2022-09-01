@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                Revealing race conditions through provocation
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>Revealing race conditions through provocation</h2>
+        <p class="info">
+            Posted on January 12, 2020
+            
+                by Simon Plakolb
+            
+            
+                <br>Learning through frustration
+            
+        </p>
+    </header>
+    <section>
+        <p>Sometimes race conditions are so rare, you never encounter them during the test phase.
+We tend to agree that users should not experience them either.
+Unfortunately, there are just too many of them out there!</p>
+<h3 id="a-multithreaded-problem">A multithreaded problem</h3>
+<p>I am running an algorithm on the GPU which itself already works threaded.
+In my case, for the singular problem some 9000 threads are incorporated.
+In blocks of 128 I believe, but this doesn’t matter.
+For itself, the algorithm works perfectly.
+The only problem is that I need to solve this algorithm some 4000 times. Quick.
+Clearly the solution is to run not 9000 threads, but 9000 times 4000 threads.</p>
+<p>If we just separate the data and threads wisely, this can be well organised.
+To our all great relief, nVidia built multi-dimensional thread and block indexing into CUDA.
+But what is even more, they provided us with 2-dimensional arrays.
+So indexing and data organisation are definitely not a big issue!</p>
+<h3 id="running-into-an-issue-nevertheless">Running into an issue nevertheless</h3>
+<p>This is where I’ve found myself having a hard time wrapping my head around the following phenomenon:</p>
+<p>Running the (singular) algorithm on the GPU skipping each block with the wrong Y-index seemed to run without any errors.
+However, running all blocks in parallel without any memory overlap, caused some.
+These were well defined, but seemed to happen in arbitrary places.
+Well defined in this case means the following: For a subset of the results, all of them would have the same error.</p>
+<figure>
+<img src="../images/cuda_constant_error.png" style="width:60.0%" alt="Example for the constant error" />
+<figcaption aria-hidden="true">Example for the constant error</figcaption>
+</figure>
+<p>At first I thought the cause for this problem was some oversight of remaining memory overlap for blocks on the y-axis.
+However, even after close inspection (i.e. some frustrating time staring at my screen) I couldn’t seem to find the issue.</p>
+<h3 id="the-reason-a-solution">The reason, a solution</h3>
+<blockquote>
+<p>I had discovered rare race conditions. The other blocks just served as provocation handle!</p>
+</blockquote>
+<p>As can be read in the <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy">CUDA C Programming Guide</a> the execution order of thread blocks is not defined.
+By adding additional blocks even if they are defined on a separate axis, the order of block execution is altered.
+The kernel will take a longer time to execute, which also streches out the possibility of blocks being executed ‘too late’.</p>
+<p>In practice, this finding can be turned into a quite useful method.
+Any typical pitfall of multithreaded programming can be forced through provocation.
+Probably, this is already good practice somewhere, otherwise I propose it here!</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>

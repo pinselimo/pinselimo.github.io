@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+            
+                Python's weird isomorphisms
+            
+        </title>
+        <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" />
+        <link rel="stylesheet" href="../js/styles/atom-one-dark-reasonable.css" />
+        <link rel="icon" href="../images/favicon.png">
+    </head>
+    <body>
+        <!-- Header -->
+            <header id="header">
+                <nav class="nav mobile">
+                    <a href="#menu">Menu</a>
+                </nav>
+
+                <nav class="nav desktop">
+                    <ul class="actions">
+                        <li><a href="../index.html" class="scrolly">Home</a></li>
+                        <li><a href="../about.html" class="scrolly">About</a></li>
+                        <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                        <li><a href="../research.html" class="scrolly">Research</a></li>
+                        <li><a href="../development.html" class="scrolly">Development</a></li>
+                        <li><a href="../blog.html" class="scrolly">Blog</a></li>
+                    </ul>
+                </nav>
+                <div class="logo">
+                
+                <strong>
+                    
+                        Blog 
+                    
+                </strong>
+                <img src="../images/favicon.png" style="height: 1em; position: relative; top: 3px;" />
+                space
+                
+                </div>
+            </header>
+
+        <!-- Nav  -->
+        <nav id="menu">
+            <ul class="links">
+                <li><a href="../index.html" class="scrolly">Home</a></li>
+                <li><a href="../about.html" class="scrolly">About</a></li>
+                <li><a href="../teaching.html" class="scrolly">Teaching</a></li>
+                <li><a href="../research.html" class="scrolly">Research</a></li>
+                <li><a href="../development.html" class="scrolly">Development</a></li>
+                <li><a href="../blog.html" class="scrolly">Blog</a></li>
+            </ul>
+        </nav>
+
+        <!-- Banner -->
+        
+
+        
+        <!-- Main -->
+        <section id="main">
+            <div class="inner">
+                <article>
+    <header>
+        <h2>Python's weird isomorphisms</h2>
+        <p class="info">
+            Posted on January 30, 2021
+            
+                by Simon Plakolb
+            
+            
+                <br>Why the hell is an uncalled method True in an if-clause?
+            
+        </p>
+    </header>
+    <section>
+        <p>So isomorphisms are a favourite among functional programmers. They allow us to convert types without losses. Strict type systems, common within functional languages, induce some restrictions on us that type conversions allow us to conveniently circumvent. Obviously, Python isn’t so strict about types. However, duck typing is a common and somewhat similar concept to isomorphisms used in Python.</p>
+<h3 id="duck-typing-and-isomorphisms">Duck Typing and Isomorphisms</h3>
+<p>The idea of duck typing is based on a rather simple idea:</p>
+<blockquote>
+<p>If it walks like a duck and quacks like a duck - then it must be a duck!</p>
+</blockquote>
+<p>Now isomorphisms work quite similarly, while also retaining the mathematical rigor we have come to expect from FP concepts. Two types <code>A</code> and <code>B</code> are isomorphisms of one another if there exist two functions <code>f :: A -&gt; B</code> and <code>g :: B -&gt; A</code> where <code>x == f(g(x))</code> and <code>y == g(f(y))</code>.</p>
+<p>In plain words: Two types are isomorphic if you can convert one to another and back without losing anything. It’s that simple.</p>
+<p>In principle the difference between duck typing and isomorphisms is that for the latter we have a proper definition with constraints, while for the prior we have an optimistic wish. Fascinatingly, in an idealistic context they work out to be pretty much the same.</p>
+<h3 id="pythons-weirdness">Pythons weirdness</h3>
+<p>Speaking of idealistic contexts - Python is not among those. Meanwhile, it is totally based on the concept of an ideal world where developers know all the unwritten (and unchecked) rules and abide.</p>
+<p>A fun context to check isomorphisms in Python is when it comes to boolean values:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Empty lists'</span>) <span class="cf">if</span> [] <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'No empty lists'</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>No empty lists</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Values below zero'</span>) <span class="cf">if</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'No values below zero'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Values below zero</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Zero?'</span>) <span class="cf">if</span> <span class="dv">0</span> <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'Zero is False'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>Zero <span class="kw">is</span> <span class="va">False</span></span></code></pre></div>
+<p>ok those are common knowledge. Empty collections are False and Zero (<code>0</code>) is also False. Let’s look at more stupid ones:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Objects'</span>) <span class="cf">if</span> <span class="bu">object</span>() <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'No objects'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Objects</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Lambdas'</span>) <span class="cf">if</span> (<span class="kw">lambda</span> x:x) <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'No lambdas'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Lambdas</span></code></pre></div>
+<p>Yes, pretty much everything else is considered <code>True</code> ! Ugh.</p>
+<h3 id="how-i-realized">How I realized</h3>
+<p>Readers will know by now: Every single one of my programming language rants has its background in some hours of fixing a stupid bug. And this is no exception!</p>
+<p>This time I encountered a method which should return a boolean value, but was instead never called. Now in every proper (sorry Pythonistas) programming language this would just trigger a well deserved exception - not in Python. It’s all happy assuming <code>(lambda x:x)</code> is <code>True</code>.</p>
+<p>And that last line actually serves an ugly solution. It’s maybe the only solution:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">'Lambda accepted'</span>) <span class="cf">if</span> ((<span class="kw">lambda</span> x:x) <span class="op">==</span> <span class="va">True</span>) <span class="cf">else</span> <span class="bu">print</span>(<span class="st">'Lambda rejected'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Lambda rejected</span></code></pre></div>
+<p>That’s right! Objects are considered <code>True</code>, yet not <strong>equal</strong> to <code>True</code>. Welcome to the weird isomorphisms of Python.</p>
+<p>So should I stop telling my students that <code>if predicate == True:</code> is unnecessary explicit? I guess so…</p>
+<h3 id="nitpicking-on-the-comparison">Nitpicking on the comparison</h3>
+<p>Of course it can be discussed if the line between duck typing and isomorphisms can be drawn in the way I did. If the object (as in “the ID”) stays the same, we can use one of type <code>A</code> as if it had type <code>B</code> and vice versa. Without losing information. However, if we perform some form of type casting, this assumption breaks down. Nevertheless, I’d argue casting is a much less famous technique among Python programmers. Probably due to the weak typing.</p>
+<p>It’s no secret that I tend to prefer the more rigorous concepts FP provides. However, even I have to admit that duck typing is incredibly convenient when you want to <a href="https://github.com/pinselimo/Pythas">hack on the meta level</a>.</p>
+<h3 id="one-more-thing">One more thing</h3>
+<p>Lastly I want to point out, that we have indeed come a far way since the times of Python 2 on this! Back then, the following worked and it still causes me nightmares:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="va">True</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="va">False</span> <span class="op">==</span> <span class="va">True</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span></code></pre></div>
+<p>Philosophically fascinating though!</p>
+    </section>
+</article>
+
+            </div>
+        </section>
+        
+
+        <!-- Footer -->
+        <footer id="footer">
+            <ul class="icons">
+                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
+                <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
+            </ul>
+            <div class="copyright">
+                <i class="fas fa-phone-alt"> +43 (0)316 380 - 7347</i><br>
+                <i class="fas fa-envelope"> simon (dot) plakolb (at) uni (minus) graz (dot) at</i><br>
+                <i class="fas fa-map-marker-alt"> Merangasse 18, A-8010 Graz</i><br>
+
+                &copy; Simon Plakolb. License: <a href="http://creativecommons.org/licenses/by/3.0">CC-BY</a>. Template: <a href="https://templated.co">TEMPLATED</a>.
+                Site proudly generated by
+                <a href="http://jaspervdj.be/hakyll">HAKYLL</a>.
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="../js/highlight.pack.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/jquery.scrolly.min.js"></script>
+        <script src="../js/skel.min.js"></script>
+        <script src="../js/util.js"></script>
+        <script src="../js/main.js"></script>
+    </body>
+</html>
