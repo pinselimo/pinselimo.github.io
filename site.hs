@@ -1,6 +1,5 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend)
 import           Hakyll
 
 
@@ -31,7 +30,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
-            >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" `mappend` postCtx)
+            >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" <> postCtx)
             >>= relativizeUrls
 
     match (fromList ["about.md","teaching.md","research.md","development.md"]) $ do
@@ -45,9 +44,9 @@ main = hakyll $ do
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let archiveCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Blog"                `mappend`
-                    constField "image" "/images/blog.jpg"    `mappend`
+                    listField "posts" postCtx (return posts) <>
+                    constField "title" "Blog"             <>
+                    constField "image" "/images/blog.jpg" <>
                     defaultContext
 
             makeItem ""
@@ -61,7 +60,7 @@ main = hakyll $ do
             posts <- recentFirst =<< loadAll "posts/*"
 
             let indexCtx =
-                    listField "posts" postCtx (return $ take 3 posts) `mappend`
+                    listField "posts" postCtx (return $ take 3 posts) <>
                     defaultContext
 
             getResourceBody
@@ -75,7 +74,7 @@ main = hakyll $ do
 --------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
-    dateField "date" "%B %e, %Y" `mappend`
+    dateField "date" "%B %e, %Y" <>
     defaultContext
 
 validBlogPosts :: Pattern
