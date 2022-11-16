@@ -6,18 +6,15 @@ section {
     text-align: center;
 }
 
-.control--container {
+.game--container {
     display: grid;
     grid-template-columns: repeat(3, auto);
     width: 306px;
     margin: 50px auto;
 }
 
-.game--container {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    width: 410px;
-    margin: 50px auto;
+.game--button {
+    margin: 20px;
 }
 
 .cell {
