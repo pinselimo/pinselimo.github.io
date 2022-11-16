@@ -2,39 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <section>
-        <h1 class="game--title" id="game--title">FSX Tac Toe</h1>
-        <p class="game--description" id="game--desc">Play tic tac toe against an FSX agent!</p>
+        <h1 class="game--title">FSX Tac Toe</h1>
+        <p class="game--description">Play tic tac toe against an FSX agent!</p>
+        <p class="game--description">
+        This is a little tic tac toe game against an agent utilizing option maximization.
+        
+        The game runs completely in your browser as JavaScript engine.
+        The algorithm is similar to that used in <a href="">my IIASA YSSP report</a>.
+        There is no learning and this is not an AI in the classical sense.
+
+        Note that in any game a winning move would minimize the number of options.
+        The agent's algorithm is, therefore, rather unfit for winning a game.
+        To make it more competitive the algorithm in the game favors winning states.
+        You may notice that its eager to win sometimes makes it do stupid things.
+        Click <a href="./gameNoWin.html">here</a> to play against an algorithm that doesn't care about winning.
+
+        The real strength of option maximization strategies lies, however, in uncertain environments.
+        Choose the complex game mode to try it out.
+        In the complex mode you play in a larger 4x4 arena.
+        After every move there is a certain chance of a random field being disabled.
+        This field is then taken out of the game and cannot be used for a winning move.
+        The agent takes this uncertainty into account - can you?
+        </p>
         <div class="game--container">
-            <label data-cell-index="0" class="cell"></label>
-            <label data-cell-index="1" class="cell"></label>
-            <label data-cell-index="2" class="cell"></label>
-            <label data-cell-index="3" class="cell"></label>
-            <label data-cell-index="4" class="cell"></label>
-            <label data-cell-index="5" class="cell"></label>
-            <label data-cell-index="6" class="cell"></label>
-            <label data-cell-index="7" class="cell"></label>
-            <label data-cell-index="8" class="cell"></label>
-        </div>
-        <h2 class="game--status"></h2>
-        <div class="game--container">
-                <button class="game--restart" id="game--restart" style="margin: 20px;">Restart Game</button>
-                <label id="game--label" for="game--restart" style="margin: 20px;">You're playing X</label>
-                <!-- Rounded switch -->
-                <label class="switch" style="margin: 20px;">
-                  <input type="checkbox" id="game--selector" checked="true" value="X">
-                  <span class="slider round"></span>
-                </label>
+                <button class="game--button" onclick="window.location.href='game.html';">Start Game</button>
+                <button class="game--button" onclick="window.location.href='complex.html';">Complex Game</button>
+                <button class="game--button" onclick="window.location.href='https://behaviour.space';">About</button>
         </div>
     </section>
-
-    <script src="script.js"></script>
 </body>
 </html>
