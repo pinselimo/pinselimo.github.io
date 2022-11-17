@@ -13,22 +13,25 @@
         <p class="game--description">Play tic tac toe against an FSX agent!</p>
         <p class="game--description">
         This is a little tic tac toe game against an agent utilizing option maximization.
-        
+        <br>
         The game runs completely in your browser as JavaScript engine.
         The algorithm is similar to that used in <a href="https://pure.iiasa.ac.at/id/eprint/17058/?template=default_internal">my IIASA YSSP report</a>.
         There is no learning and this is not an AI in the classical sense.
-
+        <br>
         Note that in any game a winning move would minimize the number of options.
         The agent's algorithm is, therefore, rather unfit for winning a game.
         To make it more competitive the algorithm in the game favors winning states.
         You may notice that its eager to win sometimes makes it do stupid things.
         Click <a href="./gameNoWin.html">here</a> to play against an algorithm that doesn't care about winning.
-
+        <br>
         The real strength of option maximization strategies lies, however, in uncertain environments.
         Choose the complex game mode to try it out.
         In the complex mode you play in a larger 4x4 arena.
-        After every move there is a certain chance of a random field being disabled.
+        Despite the larger area, the game can still be won by placing 3(!) consecutive ticks (or tacks).
+        <br>
+        To add to the complexity, after every move there is a certain chance of a random field being disabled.
         This field is then taken out of the game and cannot be used for a winning move.
+        At most, two fields are taken out of the game.
         The agent takes this uncertainty into account - can you?
         </p>
         <div class="game--container">
