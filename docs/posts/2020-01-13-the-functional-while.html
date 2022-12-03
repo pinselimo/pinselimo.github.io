@@ -76,24 +76,24 @@
         </p>
     </header>
     <section>
-        <p>Ok, this one is short and stupidly simple.
-As some might know, I like to come up with Haskellish functional solutions for problems nobody had in Python.</p>
+        <p>Okay, this one is short and stupidly simple.
+As some might know, I like to come up with Haskell-ish functional solutions for problems nobody ever had in Python.</p>
 <h3 id="today-how-to-get-rid-of-the-while-loop">Today: How to get rid of the <code>while</code> loop</h3>
 <p>Say you want to download some data from an infamously inconsistent server.
 Downloading, processing and storing the data is all done within one process called <code>proc</code>.
 However, you already know that 99% of the time, it will leave you with a timeout.
 So you write a while loop which executes the request until it is successful.
 It looks something like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="dv">1</span>:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    proc()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result_there():</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="dv">1</span>:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>            proc()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> result_there():</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span></code></pre></div>
 <p>or maybe, if you’re a little more tidy:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="kw">not</span> success:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    success <span class="op">=</span> proc()</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="kw">not</span> success:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>            success <span class="op">=</span> proc()</span></code></pre></div>
 <p>or, if you’re really lazy in writing code:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="kw">not</span> proc():</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="kw">not</span> proc():</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span></code></pre></div>
 <p>But what if I tell you, you can win the local “who used the least lines of code”-competition with a simple trick?</p>
 <!--Say we are brave functional programming monks (Hughes, 1990) coming from the vast meadows of Haskell land
 where eager computation needs a to be forced**!** *(Some might not get the joke)*-->
@@ -103,7 +103,7 @@ where eager computation needs a to be forced**!** *(Some might not get the joke)
 This means there is no variables, there is no mutable state, there is no I/O.
 Since there is no mutable state, there is no <code>for</code> loops.
 The whole concept of a <code>for</code> loop is to alter state in place.
-(<em>Tipp:</em> Use Comprehensions and Generator-Expressions instead!)</p>
+(<em>Hint:</em> Use Comprehensions and Generator-Expressions instead!)</p>
 <p>But what about the more primitive <code>while</code> loop, doesn’t it just evaluate a predicate?
 Well yes, but what’s the use case? To calculate the same result over and over again just for good measure?
 See when you calculate a solution in FP, you’ve got <strong>the</strong> solution.
@@ -112,18 +112,18 @@ You want to go over a list of inputs and safe all results? Use a fabulous list-c
 <h3 id="and-now-something-just-proven-to-be-useless">And now: Something just proven to be useless</h3>
 <p>How can we run a process over and over again until it succeeds without a <code>while</code> loop?
 Just use a wise combination of <code>any</code> and <code>count</code> (or any other infinite expression really):</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">any</span>(proc() <span class="cf">for</span> _ <span class="kw">in</span> count())</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>        <span class="bu">any</span>(proc() <span class="cf">for</span> _ <span class="kw">in</span> count())</span></code></pre></div>
 <p>Why does this work?
-<code>any</code> (and <code>all</code>) are shortcutted.
-This means, in order to save some computation time, they will stop iteratiing once they’ve:</p>
+<code>any</code> (and <code>all</code>) are shortcut.
+This means, in order to save some computation time, they will stop iterating once they’ve:</p>
 <ul>
 <li><code>any</code>: Come across the value <code>True</code></li>
 <li><code>all</code>: Come across the value <code>False</code></li>
 </ul>
-<p>Hence, there’s also a very similar approach to subsitute a loop executing all processes until one fails:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">all</span>(proc() <span class="cf">for</span> _ <span class="kw">in</span> count())</span></code></pre></div>
+<p>Hence, there’s also a very similar approach to substitute a loop executing all processes until one fails:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>        <span class="bu">all</span>(proc() <span class="cf">for</span> _ <span class="kw">in</span> count())</span></code></pre></div>
 <p>And probably there’s many other applications one can come up with.
-One important side note though: If you find yourself wondering why only half of your processes in your static blog software were ever executed - Maybe you’ve used an <code>any</code> to check if one process found something worth of updating and <code>any</code> shortcutted out of executing the rest ;)</p>
+One important side note though: If you find yourself wondering why only half of your processes in your static blog software were ever executed - Maybe you’ve used an <code>any</code> to check if one process found something worth of updating and <code>any</code> shortcut out of executing the rest ;)</p>
     </section>
 </article>
 

@@ -76,7 +76,7 @@
         </p>
     </header>
     <section>
-        <p>The <a href="https://github.com/pinselimo/Pythas">Pythas</a> package provides an easy to use interface between Python and Haskell. Thus the mame Pyt(-hon) + Has(-kell). Or, to put it into a formal context:</p>
+        <p>The <a href="https://github.com/pinselimo/Pythas">Pythas</a> package provides an easy to use interface between Python and Haskell. Thus the name Pyt(-hon) + Has(-kell). Or, to put it into a formal context:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>λ<span class="op">&gt;</span> (\a b <span class="ot">-&gt;</span> (<span class="op">++</span>) (<span class="fu">take</span> <span class="dv">3</span> a) (<span class="fu">take</span> <span class="dv">3</span> b)) <span class="st">&quot;Python&quot;</span> <span class="st">&quot;Haskell&quot;</span></span></code></pre></div>
 <p>Let’s call this function <code>name</code>. Using Pythas you can now import it into Python:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> python <span class="im">import</span> SourceModule</span>

@@ -84,7 +84,7 @@
 <blockquote>
 <p><em>A function strictly defined in Haskell dynamically used in Python.</em></p>
 </blockquote>
-<p>My - obiously too shallow - first research showed no such advances made. I had overlooked <a href="https://github.com/ddfisher/HaPy">HaPy</a> which I discovered well into the development of Pythas. So I went head first into developing an easy to use Haskell-Python interface and after all at least now you get to choose flavors ;)</p>
+<p>My - obviously too shallow - first research showed no such advances made. I had overlooked <a href="https://github.com/ddfisher/HaPy">HaPy</a> which I discovered well into the development of Pythas. So I went head first into developing an easy to use Haskell-Python interface and after all at least now you get to choose flavors ;)</p>
 <h2 id="the-first-steps">The first steps</h2>
 <p>I had already successfully imported shared libraries compiled by GHC. The only thing that really bothered me was, how unnecessary tedious it was. You’d have to add all the <code>foreign export ccall</code> statements in Haskell and then remember to properly define the <code>restype</code> and <code>argtypes</code> on Python’s <em>ctypes</em>. Nothing that couldn’t be automated!</p>
 <p>For a first prototype I chose to parse stuff and do the code creation from within Python. It’s a good prototyping language tbh - quick and dirty! Way too dirty in fact. So the next parser was implemented using Haskell’s <em>Parsec</em>. There was a clear reason why I didn’t go for <em>Attoparsec</em> or the like. I wanted <em>Pythas</em> to remain as approachable as possible. People tinker with Python because it’s easy. So I view the possibility to import Haskell into Python as a stepping stone for those unfamiliar with the deeper Haskell ecosystem. Similarly, dependencies on Python’s side are kept minimal.</p>
@@ -107,7 +107,7 @@ Having to do some memory management we get to introduce side-effects. A function
 <li>Pythas-FFI: The parser and FFI code generator. Supported as shared library and executable alike!</li>
 </ul>
 <p>Finally, obviously the Pythas package itself ships and compiles all of the above, such that installation remains easy.</p>
-<h2 id="the-question-of-purity-inbetween">The question of purity inbetween</h2>
+<h2 id="the-question-of-purity-in-between">The question of purity in between</h2>
 <p>Both Python and especially Haskell promote lists as their goto types for collections. However, much like the languages themselves these lists are vastly distinct. Haskell’s lists are implemented as proper linked lists. They support a single contained type. In contrast, Python lists are really <a href="https://stackoverflow.com/a/3917632">dynamic arrays</a>. They can contain data of various types at a time.
 Like anything in Haskell, its lists are constant while Python’s are mutable. But even the constant counterpart of lists in Python - tuples - feature multiple types at a time. Which in fact aligns them with the concept of tuples in Haskell.</p>
 <p>I am an avid functional programmer; Why else would I bestow upon myself this task otherwise? So my first instinct for passing lists was to actually construct linked lists on memory and hand over the pointer to their <code>head</code>. However, once you bridge the boundaries of languages, data structures arrive at a new level of temporarity. They are only created to be destroyed right after being passed to the other runtime. Linked lists just yield no benefit in this scenario.</p>

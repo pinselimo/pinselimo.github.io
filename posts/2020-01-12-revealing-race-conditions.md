@@ -42,7 +42,7 @@ However, even after close inspection (i.e. some frustrating time staring at my s
 
 As can be read in the [CUDA C Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy) the execution order of thread blocks is not defined.
 By adding additional blocks even if they are defined on a separate axis, the order of block execution is altered.
-The kernel will take a longer time to execute, which also streches out the possibility of blocks being executed 'too late'.
+The kernel will take a longer time to execute, which also stretches out the possibility of blocks being executed 'too late'.
 
 In practice, this finding can be turned into a quite useful method.
 Any typical pitfall of multithreaded programming can be forced through provocation.

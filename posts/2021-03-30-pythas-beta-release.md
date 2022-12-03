@@ -4,13 +4,13 @@ author: Simon Plakolb
 subtitle: They asked me why and not even I would know
 ---
 
-The [Pythas](https://github.com/pinselimo/Pythas) package provides an easy to use interface between Python and Haskell. Thus the mame Pyt(-hon) + Has(-kell). Or, to put it into a formal context:
+The [Pythas](https://github.com/pinselimo/Pythas) package provides an easy to use interface between Python and Haskell. Thus the name Pyt(-hon) + Has(-kell). Or, to put it into a formal context:
 
 ~~~haskell
 λ> (\a b -> (++) (take 3 a) (take 3 b)) "Python" "Haskell"
 ~~~
 
-Let's call this function ```name```. Using Pythas you can now import it into Python:
+Let's call this function ``name``. Using Pythas you can now import it into Python:
 
 ~~~python
 >>> from python import SourceModule

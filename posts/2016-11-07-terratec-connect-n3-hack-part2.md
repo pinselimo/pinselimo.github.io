@@ -4,13 +4,13 @@ author: Simon Plakolb
 subtitle: Opening doors, exploring the jungle
 ---
 
-Having my UART stick connected to my computer I started screen to try out different bitrates, ending up at 115.200 bit/s which finally had me seeing meaningful ASCII on my screen and entering my home field: the software.
+Having my UART stick connected to my computer I started screen to try out different bit rates, ending up at 115.200 bit/s which finally had me seeing meaningful ASCII on my screen and entering my home field: the software.
 
 ![Boot screen](../images/conn_2.jpg){ width=60% }
 
 ### Opening doors and finding keys aka the interesting part
 
-The first output booting up we got was U-Boot booting up the linux based OS on, as i guessed, an Atheros chip. The exact model is strangely sometimes called a AR7241 (Virian) and sometimes its predecessor the AR7240 (Python).  
+The first output booting up we got was U-Boot booting up the Linux based OS on, as i guessed, an Atheros chip. The exact model is strangely sometimes called a AR7241 (Virian) and sometimes its predecessor the AR7240 (Python).  
 Luckily a one second windows to interrupt the booting process is offered to us:
 
 ~~~uboot
@@ -48,22 +48,22 @@ arg 4: init=/sbin/init
 arg 6: virian # still strange thing going on with the processor generation
 ~~~
 
-Changing the boot variables to: ```arg 4: init=/sbin/sh```  
-had the kernel panic, so i tried:  ```arg 4: init=/bin/sh```
+Changing the boot variables to: ``arg 4: init=/sbin/sh``
+had the kernel panic, so i tried:  ``arg 4: init=/bin/sh``
 
 Et voilá we boot into the shell as root user:
 
 ![Root](images/conn_4.jpg)
 
-Unfortunately we also end up having a read only file system, so no password change via passwd but we can inspect the /etc/passwd and ```/etc/shadow``` file:
+Unfortunately we also end up having a read only file system, so no password change via ``passwd`` but we can inspect the ``/etc/passwd`` and ``/etc/shadow`` file:
 
 ![Passwd](images/conn_15.jpg)
 
-As we can see, there are some users w/o password and the root and Admin user share root privileges and the same hash. As with many of these devices, googling the hash reveals the password behind it way too easy. So now we can boot up the device normally, using the init process and login as root having a r/w file system.
+As we can see, there are some users w/o password and the root and Admin user share root privileges and the same hash. As with many of these devices, googling the hash reveals the password behind it way too easy. So now we can boot up the device normally, using the ``init`` process and login as root having a r/w file system.
 
 ### Exploring the jungle, looking for holes and bugs
 
-The first question i faced was, which gen's processor this thing runs under the hood, hidden away under the shield:
+The first question i faced was, which generation's processor this thing runs under the hood, hidden away under the shield:
 
 ~~~bash
 system type             : Atheros AR7240 (Python)
@@ -75,7 +75,7 @@ processor               : 0
 cpu model               : MIPS 24K V7.4
 ~~~
 
-Let’s look at the processes running after startup, ps spits out:
+Let’s look at the processes running after startup, ``ps`` spits out:
 
 ~~~bash
 217 root        124 S   /usr/sbin/telnetd

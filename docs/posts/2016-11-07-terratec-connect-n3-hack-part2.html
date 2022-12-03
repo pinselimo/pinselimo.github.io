@@ -76,13 +76,13 @@
         </p>
     </header>
     <section>
-        <p>Having my UART stick connected to my computer I started screen to try out different bitrates, ending up at 115.200 bit/s which finally had me seeing meaningful ASCII on my screen and entering my home field: the software.</p>
+        <p>Having my UART stick connected to my computer I started screen to try out different bit rates, ending up at 115.200 bit/s which finally had me seeing meaningful ASCII on my screen and entering my home field: the software.</p>
 <figure>
 <img src="../images/conn_2.jpg" style="width:60.0%" alt="Boot screen" />
 <figcaption aria-hidden="true">Boot screen</figcaption>
 </figure>
 <h3 id="opening-doors-and-finding-keys-aka-the-interesting-part">Opening doors and finding keys aka the interesting part</h3>
-<p>The first output booting up we got was U-Boot booting up the linux based OS on, as i guessed, an Atheros chip. The exact model is strangely sometimes called a AR7241 (Virian) and sometimes its predecessor the AR7240 (Python).<br />
+<p>The first output booting up we got was U-Boot booting up the Linux based OS on, as i guessed, an Atheros chip. The exact model is strangely sometimes called a AR7241 (Virian) and sometimes its predecessor the AR7240 (Python).<br />
 Luckily a one second windows to interrupt the booting process is offered to us:</p>
 <pre class="uboot"><code>PB93 (ar7241 - Virian) U-boot
 DRAM:
@@ -111,21 +111,21 @@ Booting AR7240(Python)…</code></pre>
 <p>Boot variables:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arg</span> 4: init=/sbin/init</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arg</span> 6: virian <span class="co"># still strange thing going on with the processor generation</span></span></code></pre></div>
-<p>Changing the boot variables to: <code>arg 4: init=/sbin/sh</code><br />
+<p>Changing the boot variables to: <code>arg 4: init=/sbin/sh</code>
 had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
 <p>Et voilá we boot into the shell as root user:</p>
 <figure>
 <img src="images/conn_4.jpg" alt="Root" />
 <figcaption aria-hidden="true">Root</figcaption>
 </figure>
-<p>Unfortunately we also end up having a read only file system, so no password change via passwd but we can inspect the /etc/passwd and <code>/etc/shadow</code> file:</p>
+<p>Unfortunately we also end up having a read only file system, so no password change via <code>passwd</code> but we can inspect the <code>/etc/passwd</code> and <code>/etc/shadow</code> file:</p>
 <figure>
 <img src="images/conn_15.jpg" alt="Passwd" />
 <figcaption aria-hidden="true">Passwd</figcaption>
 </figure>
-<p>As we can see, there are some users w/o password and the root and Admin user share root privileges and the same hash. As with many of these devices, googling the hash reveals the password behind it way too easy. So now we can boot up the device normally, using the init process and login as root having a r/w file system.</p>
+<p>As we can see, there are some users w/o password and the root and Admin user share root privileges and the same hash. As with many of these devices, googling the hash reveals the password behind it way too easy. So now we can boot up the device normally, using the <code>init</code> process and login as root having a r/w file system.</p>
 <h3 id="exploring-the-jungle-looking-for-holes-and-bugs">Exploring the jungle, looking for holes and bugs</h3>
-<p>The first question i faced was, which gen’s processor this thing runs under the hood, hidden away under the shield:</p>
+<p>The first question i faced was, which generation’s processor this thing runs under the hood, hidden away under the shield:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">system</span> type             : Atheros AR7240 <span class="er">(</span><span class="ex">Python</span><span class="kw">)</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#looks as if we’re running the old version</span></span>
@@ -133,7 +133,7 @@ had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">processor</span>               : 0</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">cpu</span> model               : MIPS 24K V7.4</span></code></pre></div>
-<p>Let’s look at the processes running after startup, ps spits out:</p>
+<p>Let’s look at the processes running after startup, <code>ps</code> spits out:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">217</span> root        124 S   /usr/sbin/telnetd</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">220</span> root         56 D   /bin/factoryreset /dev/freset</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">221</span> root        392 S   my_httpd</span>

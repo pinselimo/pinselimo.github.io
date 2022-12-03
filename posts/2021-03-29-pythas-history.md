@@ -16,11 +16,11 @@ No, it's not about a novel or wrongful use case of [left to right composition in
 
 > *A function strictly defined in Haskell dynamically used in Python.*
 
-My - obiously too shallow - first research showed no such advances made. I had overlooked [HaPy](https://github.com/ddfisher/HaPy) which I discovered well into the development of Pythas. So I went head first into developing an easy to use Haskell-Python interface and after all at least now you get to choose flavors ;)
+My - obviously too shallow - first research showed no such advances made. I had overlooked [HaPy](https://github.com/ddfisher/HaPy) which I discovered well into the development of Pythas. So I went head first into developing an easy to use Haskell-Python interface and after all at least now you get to choose flavors ;)
 
 ## The first steps
 
-I had already successfully imported shared libraries compiled by GHC. The only thing that really bothered me was, how unnecessary tedious it was. You'd have to add all the ```foreign export ccall``` statements in Haskell and then remember to properly define the ```restype``` and ```argtypes``` on Python's *ctypes*. Nothing that couldn't be automated!
+I had already successfully imported shared libraries compiled by GHC. The only thing that really bothered me was, how unnecessary tedious it was. You'd have to add all the ``foreign export ccall`` statements in Haskell and then remember to properly define the ``restype`` and ``argtypes`` on Python's *ctypes*. Nothing that couldn't be automated!
 
 For a first prototype I chose to parse stuff and do the code creation from within Python. It's a good prototyping language tbh - quick and dirty! Way too dirty in fact. So the next parser was implemented using Haskell's *Parsec*. There was a clear reason why I didn't go for *Attoparsec* or the like. I wanted *Pythas* to remain as approachable as possible. People tinker with Python because it's easy. So I view the possibility to import Haskell into Python as a stepping stone for those unfamiliar with the deeper Haskell ecosystem. Similarly, dependencies on Python's side are kept minimal.
 
@@ -34,12 +34,12 @@ f :: Int -> Int
 2
 ~~~
 
-And in fact a lot more was possible. ```Float```s, ```Char```s and the like. Yet if we compare this to the introductory statement: We're still missing the brackets big time!
+And in fact a lot more was possible. ``Float``s, ``Char``s and the like. Yet if we compare this to the introductory statement: We're still missing the brackets big time!
 
 ## As complexity grew
 
 It quickly occured to me, that handling of any more complex data structures would be somewhat tougher.
-Having to do some memory management we get to introduce side-effects. A function ```f :: [Int] -> [Int]``` would be exported as ```f :: CList Int -> IO (CList Int)```. Pythas would not only need to write the ```foreign export ccall``` statements but whole mappings lifting the exported functions into IO and converting their types.
+Having to do some memory management we get to introduce side-effects. A function ``f :: [Int] -> [Int]`` would be exported as ``f :: CList Int -> IO (CList Int)``. Pythas would not only need to write the ``foreign export ccall`` statements but whole mappings lifting the exported functions into IO and converting their types.
 
 Turns out strict typing isn't a problem I'd only encounter on Haskell's side. Python's ctypes library has weirdly strict typing too - you can read more about it in [another blog post](/posts/2021-03-28-ctypes-weird-and-inconvenient-typing.html).
 
@@ -51,14 +51,14 @@ I ended up rewriting the parser twice, and it still lacks better type checking u
 
 Finally, obviously the Pythas package itself ships and compiles all of the above, such that installation remains easy.
 
-## The question of purity inbetween
+## The question of purity in between
 
 Both Python and especially Haskell promote lists as their goto types for collections. However, much like the languages themselves these lists are vastly distinct. Haskell's lists are implemented as proper linked lists. They support a single contained type. In contrast, Python lists are really [dynamic arrays](https://stackoverflow.com/a/3917632). They can contain data of various types at a time.
 Like anything in Haskell, its lists are constant while Python's are mutable. But even the constant counterpart of lists in Python - tuples - feature multiple types at a time. Which in fact aligns them with the concept of tuples in Haskell.
 
-I am an avid functional programmer; Why else would I bestow upon myself this task otherwise? So my first instinct for passing lists was to actually construct linked lists on memory and hand over the pointer to their ```head```. However, once you bridge the boundaries of languages, data structures arrive at a new level of temporarity. They are only created to be destroyed right after being passed to the other runtime. Linked lists just yield no benefit in this scenario.
+I am an avid functional programmer; Why else would I bestow upon myself this task otherwise? So my first instinct for passing lists was to actually construct linked lists on memory and hand over the pointer to their ``head``. However, once you bridge the boundaries of languages, data structures arrive at a new level of temporarity. They are only created to be destroyed right after being passed to the other runtime. Linked lists just yield no benefit in this scenario.
 
-Consequently, I introduced old school vectors as ```data CArray a = Struct2 Int (Ptr a)```. Currently the allocated space in these arrays is not reused, but it could.
+Consequently, I introduced old school vectors as ``data CArray a = Struct2 Int (Ptr a)``. Currently the allocated space in these arrays is not reused, but it could.
 Similarly, strings are just NULL-pointer marked wide char arrays. They are immutable in the interface as of now - but we'll see how much speed optimization is needed if anybody ever decides to actually use Pythas for anything productive.
 
 A far less controversial choice is using structures for the interfacing of tuples. They're immutable in both languages and such are their counterparts in the interface. Not that there would be any alternative.

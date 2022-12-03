@@ -6,7 +6,7 @@ subtitle: Schroedingers strict typing explained.
 
 This post is the result of two initially separate drafts. As they both circled the typing of Python's *ctypes* library, I chose to merge them.
 
-Many programming languages ship with one or another form of support for interfacing with *C*. In Python you can actually write whole libraries entirely in the *C* programming language. If on the other hand you just want to interface with a *C* library you might want to: ```import ctypes```. It provides you with the ability to import dynamically linked libraries (DLLs) and with implementations of the types you might encounter coming from *C*. You can then access the functions in these libraries and type conversions will be done for you by *ctypes*.
+Many programming languages ship with one or another form of support for interfacing with *C*. In Python you can actually write whole libraries entirely in the *C* programming language. If on the other hand you just want to interface with a *C* library you might want to: ``import ctypes``. It provides you with the ability to import dynamically linked libraries (DLLs) and with implementations of the types you might encounter coming from *C*. You can then access the functions in these libraries and type conversions will be done for you by *ctypes*.
 
 While developing my Haskell - Python interfacing library [Pythas](htts://github.com/pinselimo/Pythas) I used *ctypes* to load compiled Haskell into Python. Naturally, there were some weird things I encountered doing so. Let's start with:
 
@@ -23,9 +23,9 @@ ctypes.ArgumentError: argument 1: <class 'TypeError'>: expected LP_c_array insta
 
 Usually Python doesn't support static typing i.e. telling the language which type an expression has. In order to interface with other languages it needs to know these specifics about memory though. So obviously you have to tell *ctypes* what the data it's seeing means. Otherwise, it will always default to 32 bit integers (AFAIK).
 
-But why would it confuse an ```LP_c_array``` with an ```LP_c_array``` ?
+But why would it confuse an ``LP_c_array`` with an ``LP_c_array`` ?
 
-Turn's out if you construct a ```ctypes.Structure``` subclass twice, even with the same name and memory layout - these are distinct types to ctypes. And it checks for them!
+Turn's out if you construct a ``ctypes.Structure`` subclass twice, even with the same name and memory layout - these are distinct types to ctypes. And it checks for them!
 
 You can try it out with this snippet:
 
@@ -70,7 +70,7 @@ The end of the first story. Next up we have:
 
 So now that we know we need to tell *ctypes* **exactly** which type it is looking at we should be fine, right? Wrong!
 
-The library is so eager to support us, it starts doing type conversions without being asked. If a C-function has return type ```ctypes.c_wchar_p``` (and probably also ```ctypes.c_char_p``` but Python uses 16bit characters for strings) ctypes will handle the conversion to a Python ```str``` string automatically. Unfortunately it doesn't keep track of the pointer, nor marshal it in any way. So we're 
+The library is so eager to support us, it starts doing type conversions without being asked. If a C-function has return type ``ctypes.c_wchar_p`` (and probably also ``ctypes.c_char_p`` but Python uses 16bit characters for strings) ctypes will handle the conversion to a Python ``str`` string automatically. Unfortunately it doesn't keep track of the pointer, nor marshal it in any way. So we're 
 
 So we end up with leaking memory unless we go to the lengths of wrapping said string. One of the most important features of data processing are strings however. So they were a must have in the Pythas package.
 
@@ -85,11 +85,11 @@ So we end up with leaking memory unless we go to the lengths of wrapping said st
 ...
 ~~~
 
-This example works at the root directory of the [Pythas repository](https://github.com/pinselimo/Pythas). Alternatively create a directory called ```example``` and place an ```Example.hs``` file in it filled with these [file contents](https://github.com/pinselimo/Pythas/blob/master/example/Example.hs). Then install **Pythas** using *pip* and run *python*.
+This example works at the root directory of the [Pythas repository](https://github.com/pinselimo/Pythas). Alternatively create a directory called ``example`` and place an ``Example.hs`` file in it filled with these [file contents](https://github.com/pinselimo/Pythas/blob/master/example/Example.hs). Then install **Pythas** using *pip* and run *python*.
 
 ### Memory profiling
 
-Using *Valgrind*'s own *massif* memory profiler I created two graphs showing the issue. In the first graph we'll use the code from above. *Pythas* is designed with this issue in mind. It doesn't actually hand over ```char```-pointers but ```char```-pointer-pointers! Hence, *ctypes* doesn't automatically convert the string and we can dereference the pointer after conversion.
+Using *Valgrind*'s own *massif* memory profiler I created two graphs showing the issue. In the first graph we'll use the code from above. *Pythas* is designed with this issue in mind. It doesn't actually hand over ``char``-pointers but ``char``-pointer-pointers! Hence, *ctypes* doesn't automatically convert the string and we can dereference the pointer after conversion.
 
 ~~~
     MB
@@ -119,7 +119,7 @@ Using *Valgrind*'s own *massif* memory profiler I created two graphs showing the
 
 
 The second graph relies on *ctypes*. It's the same example but using the **testing only** commit [66527b2](https://github.com/pinselimo/Pythas/commit/66527b2470e73df33783bcd5ccaed00db1886241) of *Pythas*.
-This version will hand over plain ```char```-pointers making it impossible to get the pointer address after *ctypes*' automatic conversion. You can see the result here:
+This version will hand over plain ``char``-pointers making it impossible to get the pointer address after *ctypes*' automatic conversion. You can see the result here:
 
 ~~~
     MB
@@ -155,8 +155,8 @@ I guess it's safe to say *ctypes* doesn't properly support allocated strings.
 
 Of course these things are more related to UX, error message philosophy and consistency. Nothing major. Hence, I could provide workarounds for both. I also had to for my *Pythas* package.
 
-+ To prevent type matching errors consider pairing the ```struct``` subclass with it's constructor (if these two aren't one and the same). Do not rely on the function to provide you with the correct type dynamically.
-+ To circumvent *ctypes* swallowing your pointer reference wrap ```ctypes.c_wchar_p``` instances in another ```ctypes.POINTER```. This way you can then free both of them from wherever you allocated the space in the first place.
++ To prevent type matching errors consider pairing the ``struct`` subclass with it's constructor (if these two aren't one and the same). Do not rely on the function to provide you with the correct type dynamically.
++ To circumvent *ctypes* swallowing your pointer reference wrap ``ctypes.c_wchar_p`` instances in another ``ctypes.POINTER``. This way you can then free both of them from wherever you allocated the space in the first place.
 
 For more fun with *ctypes* refer to the aptly named ["surprises"](https://docs.python.org/3/library/ctypes.html#surprises) paragraph of its very own documentation.
 
