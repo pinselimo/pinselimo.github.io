@@ -42,13 +42,13 @@ main = hakyllWith config $ do
         route $ setExtension "html"
         compile $ compiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
-            >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" <> postCtx)
+            >>= defaultTemplate (constField "webtitle" "Blog" <> postCtx)
             >>= relativizeUrls
 
     match (fromList $ map (fromFilePath . ("contents/" <> )) ["about.md","teaching.md","research.md","development.md"]) $ do
         route $ setExtension "html"
         compile $ compiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= defaultTemplate defaultContext
             >>= relativizeUrls
 
     create ["contents/blog.html"] $ do
@@ -63,7 +63,7 @@ main = hakyllWith config $ do
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/blog.html" archiveCtx
-                >>= loadAndApplyTemplate "templates/default.html" archiveCtx
+                >>= defaultTemplate archiveCtx
                 >>= relativizeUrls
 
     match "index.html" $ do
@@ -77,8 +77,9 @@ main = hakyllWith config $ do
 
             getResourceBody
                 >>= applyAsTemplate indexCtx
-                >>= loadAndApplyTemplate "templates/default.html" indexCtx
+                >>= defaultTemplate indexCtx
                 >>= relativizeUrls
 
     match "templates/*" $ compile templateBodyCompiler
+    where defaultTemplate ctx = loadAndApplyTemplate "templates/default.html" ctx
 
