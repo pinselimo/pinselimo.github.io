@@ -27,27 +27,16 @@ postCtx =
 validBlogPosts :: Pattern
 validBlogPosts = (fromGlob "posts/*") .&&. complement (fromGlob "posts/_*")
 
+copy :: Pattern -> Rules ()
+copy p = match p (route idRoute >> compily copyFileCompiler)
+
 main :: IO ()
 main = hakyllWith config $ do
-    match "assets/images/*" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "assets/css/*" $ do
-        route   idRoute
-        compile compressCssCompiler
-
-    match "assets/js/**" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "assets/fonts/*" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "assets/webfonts/*" $ do
-        route   idRoute
-        compile copyFileCompiler
+    copy "assets/images/*"
+    copy "assets/css/*"
+    copy "assets/js/**"
+    copy "assets/fonts/*"
+    copy "assets/webfonts/*"
 
     match validBlogPosts $ do
         route $ setExtension "html"
