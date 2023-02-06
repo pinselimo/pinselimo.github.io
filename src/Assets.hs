@@ -13,3 +13,4 @@ copyAssets = do
   copy "assets/js/**"
   copy "assets/fonts/*"
   copy "assets/webfonts/*"
+  copy "CNAME"
