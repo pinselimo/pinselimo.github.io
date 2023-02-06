@@ -1,6 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Site where
 --------------------------------------------------------------------------------
-{-# LANGUAGE OverloadedStrings #-}
 import           Hakyll
 
 
@@ -12,23 +12,23 @@ config = defaultConfiguration
 
 main :: IO ()
 main = hakyllWith config $ do
-    match "images/*" $ do
+    match "assets/images/*" $ do
         route   idRoute
         compile copyFileCompiler
 
-    match "css/*" $ do
+    match "assets/css/*" $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "js/**" $ do
+    match "assets/js/**" $ do
         route   idRoute
         compile copyFileCompiler
 
-    match "fonts/*" $ do
+    match "assets/fonts/*" $ do
         route   idRoute
         compile copyFileCompiler
 
-    match "webfonts/*" $ do
+    match "assets/webfonts/*" $ do
         route   idRoute
         compile copyFileCompiler
 
@@ -39,7 +39,7 @@ main = hakyllWith config $ do
             >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" <> postCtx)
             >>= relativizeUrls
 
-    match (fromList $ ("contents/"</>) <$> ["about.md","teaching.md","research.md","development.md"]) $ do
+    match (fromList $ map (fromFilePath . ("contents/" <> )) ["about.md","teaching.md","research.md","development.md"]) $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
