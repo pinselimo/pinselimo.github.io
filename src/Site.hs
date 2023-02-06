@@ -1,14 +1,31 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Site where
---------------------------------------------------------------------------------
+
 import           Hakyll
 
-
---------------------------------------------------------------------------------
 config :: Configuration
 config = defaultConfiguration
   { destinationDirectory = "docs"
   }
+
+reader :: ReaderOptions
+reader = defaultHakyllReaderOptions
+
+writer :: WriterOptions
+writer = defaultHakyllWriterOptions
+       { writerHTMLMathMethod = MathML
+       }
+
+compiler :: Compiler (Item String)
+compiler = pandocCompilerWithTransformM reader writer pure
+
+postCtx :: Context String
+postCtx =
+    dateField "date" "%B %e, %Y" <>
+    defaultContext
+
+validBlogPosts :: Pattern
+validBlogPosts = (fromGlob "posts/*") .&&. complement (fromGlob "posts/_*")
 
 main :: IO ()
 main = hakyllWith config $ do
@@ -34,14 +51,14 @@ main = hakyllWith config $ do
 
     match validBlogPosts $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ compiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" (constField "webtitle" "Blog" <> postCtx)
             >>= relativizeUrls
 
     match (fromList $ map (fromFilePath . ("contents/" <> )) ["about.md","teaching.md","research.md","development.md"]) $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ compiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
@@ -75,14 +92,4 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
 
     match "templates/*" $ compile templateBodyCompiler
-
-
---------------------------------------------------------------------------------
-postCtx :: Context String
-postCtx =
-    dateField "date" "%B %e, %Y" <>
-    defaultContext
-
-validBlogPosts :: Pattern
-validBlogPosts = (fromGlob "posts/*") .&&. complement (fromGlob "posts/_*")
 
