@@ -7,5 +7,5 @@ Most of my code is free and open source. Find my projects on <a href="https://gi
 
 I am a big functional programming <a href="https://www.haskell.org/">Haskell</a> aficionado. Nevertheless, my teaching mainly is done in <a href="https://www.python.org/">Python</a>. To facilitate bridging the gap in between both languages for my students I developed <a href="https://github.com/pinselimo/Pythas">Pythas</a>.
 
-Follow my (strong) opinions about programming languages in my <a href="/contents/blog.html">blog</a>
+Follow my (strong) opinions about programming languages in my <a href="/contents/blog.html">blog</a>.
 
