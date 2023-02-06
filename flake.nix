@@ -6,6 +6,11 @@
   outputs = { self, nixpkgs, flake-utils}:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
+      haskellPackages = hsPkgs : with hsPkgs; [
+        base hakyll
+
+        haskell-language-server
+      ];
       f = { mkDerivation, base, hakyll, lib }:
         mkDerivation {
           pname = "behaviour-space";
@@ -24,6 +29,15 @@
     apps.default = {
       type = "app";
       program = "${drv}/bin/site"; 
+    };
+    devShells.default = pkgs.mkShell {
+      packages = with pkgs; [
+        (ghc.withPackages haskellPackages)
+
+        ormolu
+
+        bashInteractive
+      ];
     };
   });
 }
