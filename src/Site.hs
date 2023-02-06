@@ -1,3 +1,4 @@
+module Site where
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Hakyll
