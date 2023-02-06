@@ -58,7 +58,7 @@ main = hakyllWith config $ do
             let archiveCtx =
                     listField "posts" postCtx (return posts) <>
                     constField "title" "Blog"             <>
-                    constField "image" "/images/blog.jpg" <>
+                    constField "image" "/assets/images/blog.jpg" <>
                     defaultContext
 
             makeItem ""
