@@ -77,25 +77,25 @@
                       data['descendants'].forEach(function(reply) {
                         reply.account.display_name = escapeHtml(reply.account.display_name);
                         reply.account.emojis.forEach(emoji => {
-                          reply.account.display_name = reply.account.display_name.replace(`:${emoji.shortcode}:`,
-                            `<img src="${escapeHtml(emoji.static_url)}" alt="Emoji ${emoji.shortcode}" height="20" width="20" />`);
+                          reply.account.display_name = reply.account.display_name.replace(`:$${emoji.shortcode}:`,
+                            `<img src="$${escapeHtml(emoji.static_url)}" alt="Emoji $${emoji.shortcode}" height="20" width="20" />`);
                         });
                         mastodonComment =
                           `<div class="mastodon-comment">
                              <div class="avatar">
-                               <img src="${escapeHtml(reply.account.avatar_static)}" height=60 width=60 alt="">
+                               <img src="$${escapeHtml(reply.account.avatar_static)}" height=60 width=60 alt="">
                              </div>
                              <div class="content">
                                <div class="author">
-                                 <a href="${reply.account.url}" rel="nofollow">
-                                   <span>${reply.account.display_name}</span>
-                                   <span class="disabled">${escapeHtml(reply.account.acct)}</span>
+                                 <a href="$${reply.account.url}" rel="nofollow">
+                                   <span>$${reply.account.display_name}</span>
+                                   <span class="disabled">$${escapeHtml(reply.account.acct)}</span>
                                  </a>
-                                 <a class="date" href="${reply.uri}" rel="nofollow">
-                                   ${reply.created_at.substr(0, 10)}
+                                 <a class="date" href="$${reply.uri}" rel="nofollow">
+                                   $${reply.created_at.substr(0, 10)}
                                  </a>
                                </div>
-                               <div class="mastodon-comment-content">${reply.content}</div>
+                               <div class="mastodon-comment-content">$${reply.content}</div>
                              </div>
                            </div>`;
                         document.getElementById('mastodon-comments-list').appendChild(DOMPurify.sanitize(mastodonComment, {'RETURN_DOM_FRAGMENT': true}));
