@@ -7,15 +7,19 @@ import Blog (compilePosts, createBlogSite, postCtx)
 import Core (compiler, config, defaultTemplate)
 import Hakyll (compile, hakyllWith, match, templateBodyCompiler)
 import Site (compileContents, compileIndex)
+import Publications(publicationList, createPublicationsSite)
 
 main :: IO ()
-main = hakyllWith config $ do
-  copyAssets
-
-  compilePosts
-  createBlogSite
-
-  compileContents
-  compileIndex
-
-  match "templates/*" $ compile templateBodyCompiler
+main = do
+  bibliography <- publicationList "contents/bibliography.bibtex" 
+  hakyllWith config $ do
+    copyAssets
+ 
+    compilePosts
+    createBlogSite
+ 
+    --compileContents
+    compileIndex bibliography
+    createPublicationsSite bibliography
+ 
+    match "templates/*" $ compile templateBodyCompiler

@@ -7,18 +7,18 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       haskellPackages = hsPkgs : with hsPkgs; [
-        base hakyll
+        base hakyll pandoc bibtex
 
         haskell-language-server
       ];
-      f = { mkDerivation, base, hakyll, lib }:
+      f = { mkDerivation, base, hakyll, pandoc, bibtex, lib }:
         mkDerivation {
           pname = "behaviour-space";
           version = "0.1.0.0";
           src = ./.;
           isLibrary = false;
           isExecutable = true;
-          executableHaskellDepends = [ base hakyll ];
+          executableHaskellDepends = [ base hakyll pandoc bibtex ];
           license = "unknown";
           mainProgram = "site";
         };
