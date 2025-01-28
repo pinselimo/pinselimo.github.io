@@ -23,10 +23,7 @@
                 <nav class="nav desktop">
                     <ul class="actions">
                         <li><a href="../index.html" class="scrolly">Home</a></li>
-                        <li><a href="../contents/about.html" class="scrolly">About</a></li>
-                        <li><a href="../contents/teaching.html" class="scrolly">Teaching</a></li>
-                        <li><a href="../contents/research.html" class="scrolly">Research</a></li>
-                        <li><a href="../contents/development.html" class="scrolly">Development</a></li>
+                        <li><a href="../contents/Publications.html" class="scrolly">Publications</a></li>
                         <li><a href="../contents/blog.html" class="scrolly">Blog</a></li>
                     </ul>
                 </nav>
@@ -47,10 +44,7 @@
         <nav id="menu">
             <ul class="links">
                 <li><a href="../index.html" class="scrolly">Home</a></li>
-                <li><a href="../contents/about.html" class="scrolly">About</a></li>
-                <li><a href="../contents/teaching.html" class="scrolly">Teaching</a></li>
-                <li><a href="../contents/research.html" class="scrolly">Research</a></li>
-                <li><a href="../contents/development.html" class="scrolly">Development</a></li>
+                <li><a href="../contents/Publications.html" class="scrolly">Publications</a></li>
                 <li><a href="../contents/blog.html" class="scrolly">Blog</a></li>
             </ul>
         </nav>
@@ -140,7 +134,7 @@ had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">222</span> root        288 S   netusb_wd CONNECT N3</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">228</span> root        328 S   netusb br0 CONNECT</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">231</span> root        276 S   awdp br0 CONNECT</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">229</span> root            SW  [thread_func_ex]</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">229</span> root            SW  <span class="pp">[</span><span class="ss">thread_func_ex</span><span class="pp">]</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">240</span> root        184 S   /sbin/getty ttyS0 115200</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">245</span> root        184 S   udhcpc <span class="at">-b</span> <span class="at">-i</span> br0 <span class="at">-s</span> /etc/udhcpc.script</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">285</span> root        372 S   <span class="at">-sh</span></span>
@@ -149,6 +143,7 @@ had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
 <p>NetUSB is a service, nomen est omen, providing USB over the local network. So it seems likely that it mirrors the USB DVB-S stick coming from the Cypress controller in the LAN, the driver on the client’s Windows machine then acts as an interface between a virtual USB device and the netusb device in the network.</p>
 <p>In the next post we’ll look into what’s happening on the network!</p>
     </section>
+    
 </article>
 
             </div>
@@ -158,7 +153,7 @@ had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
         <!-- Footer -->
         <footer id="footer">
             <ul class="icons">
-                <li><a href="https://twitter.com/pIakoIb" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
+                <li><a href="https://bsky.app/profile/plakolb.bsky.social" style="text-decoration: none" class="fab fa-twitter fa-2x"></a></li>
                 <li><a href="https://www.researchgate.net/profile/Simon_Plakolb" style="text-decoration: none" class="fab fa-researchgate fa-2x"></a></li>
                 <li><a href="https://github.com/pinselimo" style="text-decoration: none" class="fab fa-github fa-2x"></a></li>
                 <li><a rel="me" href="https://functional.cafe/@plakolb" style="text-decoration: none" class="fab fa-mastodon fa-2x"></a></li>
@@ -177,10 +172,5 @@ had the kernel panic, so i tried: <code>arg 4: init=/bin/sh</code></p>
         <!-- Scripts -->
         <script src="../assets/js/highlight.pack.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
-        <script src="../assets/js/jquery.min.js"></script>
-        <script src="../assets/js/jquery.scrolly.min.js"></script>
-        <script src="../assets/js/skel.min.js"></script>
-        <script src="../assets/js/util.js"></script>
-        <script src="../assets/js/main.js"></script>
     </body>
 </html>
